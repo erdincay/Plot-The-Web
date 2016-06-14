@@ -31,7 +31,6 @@ if __name__ == '__main__':
     f = open('data','a')
 
     def cb(result):
-        print result
         if result is None:
             return
         ip, lat, lon, t = result
