@@ -3,6 +3,8 @@ import os
 import subprocess
 import traceback
 import time
+from geoip import geolite2
+import csv
 from multiprocessing.pool import ThreadPool, Pool
 
 
@@ -27,3 +29,22 @@ def ping(ip,lat,lng):
 if __name__ == '__main__':
     pool = ThreadPool(processes=100)
     f = open('data','a')
+
+    def cb(result):
+        print result
+        if result is None:
+            return
+        ip, lat, lon, t = result
+
+    for i in range(10000):
+        ip = get_random_ip()
+        match = geolite2.lookup(ip)
+        if match is None or match.location is None:
+            continue
+        lat,lng = match.location
+        pool.apply_async(ping,args=(ip,lat,lng),callback=cb)
+
+    pool.close()
+    pool.join()
+
+    f.close()
