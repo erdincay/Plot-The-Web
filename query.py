@@ -17,9 +17,8 @@ def get_random_ip():
 
 def ping(ip,lat,lng):
     try:
-        print ip
         t = time.time()
-        status = subprocess.call(['ping', '-c1', '-t2', ip], stdout=null, stderr=null)
+        status = subprocess.call(['ping', '-c2', ip], stdout=null, stderr=null)
         if status != 0:
             return None
         return ip,lat,lng,time.time() - t
@@ -28,14 +27,18 @@ def ping(ip,lat,lng):
 
 if __name__ == '__main__':
     pool = ThreadPool(processes=100)
-    f = open('data','a')
+    f = open('data','w')
 
     def cb(result):
         if result is None:
             return
+        print
+        print result
+        print
         ip, lat, lon, t = result
+        (f.write(x+"\n") for x in result)
 
-    for i in range(10000):
+    for i in range(100):
         ip = get_random_ip()
         match = geolite2.lookup(ip)
         if match is None or match.location is None:
