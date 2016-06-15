@@ -36,7 +36,7 @@ if __name__ == '__main__':
         print result
         print
         ip, lat, lon, t = result
-        (f.write(x+"\n") for x in result)
+        print >>f, lat, lon, t
 
     for i in range(100):
         ip = get_random_ip()
