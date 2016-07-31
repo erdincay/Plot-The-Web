@@ -1,4 +1,5 @@
 import math
+<<<<<<< HEAD
 import numpy
 from annoy import AnnoyIndex
 import matplotlib.pyplot as plt
@@ -9,6 +10,10 @@ from mpl_toolkits import basemap
 vmin, vmax = 0.0, 0.4
 
 def convert(lat, lon):
+=======
+
+def ll_to_3d(lat, lon):
+>>>>>>> 76b948ce3779d0dcee5867606ac9cf3cbbe184cf
     lat *= math.pi / 180
     lon *= math.pi / 180
     x = math.cos(lat) * math.cos(lon)
@@ -24,6 +29,7 @@ for line in open('data'):
         print 'could not parse',line
         continue
     cords.setdefault((lat,lng),[]).append(t)
+<<<<<<< HEAD
 
 ai = AnnoyIndex(3, 'angular')
 xs, ys, ts = [], [], []
@@ -49,3 +55,5 @@ for i, _ in np.ndenumerate(Z):
     v = convert(lat,lon)
     js = ai.get_nns_by_vector(v, 50)
     all_ts = [ts[j] for j in js]
+=======
+>>>>>>> 76b948ce3779d0dcee5867606ac9cf3cbbe184cf
