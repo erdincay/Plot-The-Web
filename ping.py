@@ -6,7 +6,7 @@ import time
 from geoip import geolite2
 import csv
 from multiprocessing.pool import ThreadPool, Pool
-
+import json
 
 null = open(os.devnull, 'w')
 
@@ -26,9 +26,9 @@ def ping(ip,lat,lng):
         traceback.print_exec()
 
 if __name__ == '__main__':
-    pool = ThreadPool(processes=200)
-    f = open('data','w')
-
+    pool = ThreadPool(processes=40)
+    outfile= open('data.json', 'w')
+    res = []
     def cb(result):
         if result is None:
             return
@@ -36,9 +36,9 @@ if __name__ == '__main__':
         print result
         print
         ip, lat, lon, t = result
-        print >>f, lat, lon, t
+        res.append((ip,lat,lon,t))
 
-    for i in range(10000):
+    for i in range(30):
         ip = get_random_ip()
         match = geolite2.lookup(ip)
         if match is None or match.location is None:
@@ -48,5 +48,6 @@ if __name__ == '__main__':
 
     pool.close()
     pool.join()
+    json.dump(res, outfile,indent = 4)
 
-    f.close()
+    outfile.close()
