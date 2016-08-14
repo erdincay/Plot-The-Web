@@ -7,6 +7,7 @@ from geoip import geolite2
 import csv
 from multiprocessing.pool import ThreadPool, Pool
 import json
+import itertools
 
 null = open(os.devnull, 'w')
 
@@ -26,19 +27,17 @@ def ping(ip,lat,lng):
         traceback.print_exec()
 
 if __name__ == '__main__':
-    pool = ThreadPool(processes=40)
-    outfile= open('data.json', 'w')
+    pool = ThreadPool(processes=100)
+    outfile= open('data2.json', 'a')
     res = []
     def cb(result):
         if result is None:
             return
-        print
         print result
-        print
         ip, lat, lon, t = result
         res.append((ip,lat,lon,t))
 
-    for i in range(30):
+    for i in itertools.count(429496729):
         ip = get_random_ip()
         match = geolite2.lookup(ip)
         if match is None or match.location is None:

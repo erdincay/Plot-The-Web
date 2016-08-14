@@ -1,17 +1,16 @@
 import math
-import numpy
-from annoy import AnnoyIndex
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.cm as cmx
-from mpl_toolkits import basemap
+from annoy import AnnoyIndex
+from mpl_toolkits.basemap import Basemap
+import json
 
-vmin, vmax = 0.0, 0.4
+
+
 
 def convert(lat, lon):
-
-
-def ll_to_3d(lat, lon):
     lat *= math.pi / 180
     lon *= math.pi / 180
     x = math.cos(lat) * math.cos(lon)
@@ -19,36 +18,46 @@ def ll_to_3d(lat, lon):
     y = math.sin(lat)
     return [x, y, z]
 
-cords = {}
-for line in open('data'):
-    try:
-        lat, lon, t = map(float, line.strip().split())
-    except:
-        print 'could not parse',line
-        continue
-    cords.setdefault((lat,lng),[]).append(t)
 
-ai = AnnoyIndex(3, 'angular')
-xs, ys, ts = [], [], []
+def main():
 
-for c, ip in coords.iteritems():
-    lat, lon = c
-    ip = np.median(ip) # remove duplicate ips with same lat/long
-    p = convert(lat, lon)
-    ai.add_item(len(ts), p)
-    xs.append(lon)
-    ys.append(lat)
-    ts.append(t)
+    ai = AnnoyIndex(3, 'angular')
+    xs, ys, ts = [], [], []
+    cords = {}
+    data = json.load(open('data.json'))
+
+    for x in data:
+
+        ip,lat,lon,t = x[0],x[1],x[2],x[3]
+        cords.setdefault((lat, lon), []).append(t)
+
+    for c,t in cords.iteritems():
+
+        lat, lon = c
+        t = np.median(t)
+        p = convert(lat, lon)
+        ai.add_item(len(ts), p)
+        xs.append(lon)
+        ys.append(lat)
+        ts.append(t)
+
+    ai.build(10)
+    print ai
+    lons = np.arange(-180, 180, 0.25)
+    lats = np.arange(-90, 90, 0.25)
+    X, Y = np.meshgrid(lons, lats)
+    Z = np.zeros(X.shape)
+    count = 0
+    for i, _ in np.ndenumerate(Z):
+        lon, lat = X[i], Y[i]
+
+        v = convert(lat, lon)
+
+        js = ai.get_nns_by_vector(v, 50)
+        #print js
+        all_ts = [ts[j] for j in js]
+        #print all_ts
 
 
-ai.build()
-
-lons = np.arange(-180, 180, 0.25)
-lats = np.arange(-90, 90, 0.25)
-x,y = np.meshgrid(lons,lats)
-z = np.zeros(x.shape)
-for i, _ in np.ndenumerate(Z):
-    lon, lat = x[i], y[i]
-    v = convert(lat,lon)
-    js = ai.get_nns_by_vector(v, 50)
-    all_ts = [ts[j] for j in js]
+if __name__ == '__main__':
+    main()
